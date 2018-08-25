@@ -65,3 +65,61 @@ test(`2 different loggers don't share the same namespace`, t => {
 
   t.notDeepEqual(logger.cls, anotherLogger.cls);
 });
+
+test.cb(`Should properly log message with cls context`, t => {
+  const stream = parseJSONStream();
+  const gen = streamToGenerator(stream);
+  const logger = createLogger({}, stream);
+
+  const msg = 'foo';
+  const clsValues = {
+    dummy: 'value',
+    another: 'another value',
+  };
+
+  logger.cls.run(() => {
+    logger.cls.set('dummy', clsValues.dummy);
+    logger.cls.set('another', clsValues.another);
+    process.nextTick(async () => {
+      logger.info(msg);
+
+      const entry = await gen.next().value;
+
+      t.is(entry.dummy, clsValues.dummy);
+      t.is(entry.another, clsValues.another);
+
+      t.end();
+    });
+  });
+});
+
+test.cb(
+  `Should properly log message with both cls and local context,
+    And local context should have precedence over cls context`,
+  t => {
+    const stream = parseJSONStream();
+    const gen = streamToGenerator(stream);
+    const logger = createLogger({}, stream);
+
+    const msg = 'foo';
+    const clsValues = {
+      dummy: 'value',
+      precedence: 'will be overwitten',
+    };
+
+    logger.cls.run(() => {
+      logger.cls.set('dummy', clsValues.dummy);
+      logger.cls.set('another', clsValues.another);
+      process.nextTick(async () => {
+        const localValues = { precedence: 'local' };
+        logger.info(localValues, msg);
+
+        const entry = await gen.next().value;
+
+        t.is(entry.precedence, localValues.precedence);
+
+        t.end();
+      });
+    });
+  }
+);
