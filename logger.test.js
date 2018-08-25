@@ -123,3 +123,69 @@ test.cb(
     });
   }
 );
+
+test.cb(`Should properly propagate cls context to child logger`, t => {
+  const stream = parseJSONStream();
+  const gen = streamToGenerator(stream);
+  const logger = createLogger({}, stream);
+
+  const msg = 'foo';
+  const clsValues = {
+    dummy: 'value',
+    another: 'another value',
+  };
+
+  const childContext = { foo: 'bar' };
+  const child = logger.child(childContext);
+
+  logger.cls.run(() => {
+    logger.cls.set('dummy', clsValues.dummy);
+    logger.cls.set('another', clsValues.another);
+    process.nextTick(async () => {
+      child.info(msg);
+
+      const entry = await gen.next().value;
+
+      t.is(entry.dummy, clsValues.dummy);
+      t.is(entry.another, clsValues.another);
+      t.is(entry.foo, childContext.foo);
+
+      t.end();
+    });
+  });
+});
+
+test.cb(`Should properly propagate cls context to grand child logger`, t => {
+  const stream = parseJSONStream();
+  const gen = streamToGenerator(stream);
+  const logger = createLogger({}, stream);
+
+  const msg = 'foo';
+  const clsValues = {
+    dummy: 'value',
+    another: 'another value',
+  };
+
+  const childContext = { foo: 'bar' };
+  const child = logger.child(childContext);
+
+  const grandChildContext = { fizz: 'buzz' };
+  const grandChild = child.child(grandChildContext);
+
+  logger.cls.run(() => {
+    logger.cls.set('dummy', clsValues.dummy);
+    logger.cls.set('another', clsValues.another);
+    process.nextTick(async () => {
+      grandChild.info(msg);
+
+      const entry = await gen.next().value;
+
+      t.is(entry.dummy, clsValues.dummy);
+      t.is(entry.another, clsValues.another);
+      t.is(entry.foo, childContext.foo);
+      t.is(entry.fizz, grandChildContext.fizz);
+
+      t.end();
+    });
+  });
+});

@@ -1,8 +1,6 @@
 const pino = require('pino');
 const { createNamespace } = require('cls-hooked');
 
-const logMethods = ['trace', 'debug', 'info', 'warn', 'error', 'fatal'];
-
 const logMethodHandler = {
   apply(target, thisArg, argumentList) {
     // eslint-disable-next-line camelcase
@@ -26,25 +24,59 @@ const logMethodHandler = {
   },
 };
 
-const loggerObjectHandler = {
-  get(target, prop) {
-    if (!logMethods.includes(prop)) {
-      return target[prop];
-    }
+const childMethodHandler = {
+  apply(target, thisArg, argumentList) {
+    const { cls } = thisArg;
 
-    return new Proxy(target[prop], logMethodHandler);
+    // eslint-disable-next-line no-use-before-define
+    return createWrapper({ cls }, target.apply(thisArg, argumentList));
   },
 };
+
+const loggerObjectHandler = {
+  get(target, prop) {
+    if (target.proxies && target.proxies[prop]) {
+      return target.proxies[prop];
+    }
+
+    return target[prop];
+  },
+};
+
+const createProxies = target => ({
+  trace: new Proxy(target.trace, logMethodHandler),
+  debug: new Proxy(target.debug, logMethodHandler),
+  info: new Proxy(target.info, logMethodHandler),
+  warn: new Proxy(target.warn, logMethodHandler),
+  error: new Proxy(target.error, logMethodHandler),
+  fatal: new Proxy(target.fatal, logMethodHandler),
+  child: new Proxy(target.child, childMethodHandler),
+});
+
+function createWrapper({ cls }, pinoInstance) {
+  const baseLogger = Object.create(pinoInstance, {
+    cls: {
+      value: cls,
+    },
+  });
+  const loggerWithProxies = Object.create(baseLogger, {
+    proxies: {
+      value: createProxies(baseLogger),
+    },
+  });
+
+  return new Proxy(loggerWithProxies, loggerObjectHandler);
+}
 
 let counter = 0;
 
 function createLogger(opts, destination) {
-  const baseLogger = pino(opts, destination);
   const cls = createNamespace(`@@logger-${counter}`);
-
   counter += 1;
 
-  return new Proxy(Object.assign(baseLogger, { cls }), loggerObjectHandler);
+  const pinoInstance = pino(opts, destination);
+
+  return createWrapper({ cls }, pinoInstance);
 }
 
 module.exports = createLogger;
