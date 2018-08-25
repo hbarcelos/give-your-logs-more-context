@@ -1,0 +1,43 @@
+{
+  "parser": "",
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
+  "extends": [
+    "airbnb-base",
+    "plugin:prettier/recommended",
+    "plugin:ava/recommended"
+  ],
+  "plugins": [
+    "ava"
+  ],
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true,
+        "trailingComma": "es5"
+      }
+    ],
+    "no-restricted-syntax": 0,
+    "no-underscore-dangle": 0,
+    "import/no-extraneous-dependencies": [
+      "error",
+      {
+        "devDependencies": [
+          "**/*.test.js",
+          "**/*.spec.js",
+          "**/*.fixture.js",
+          "**/__fixtures__/",
+          "**/__test__"
+        ]
+      }
+    ],
+    "ava/no-only-test": "off",
+    "import/prefer-default-export": "off",
+    "global-require": "off"
+  }
+}
