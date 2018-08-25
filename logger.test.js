@@ -58,3 +58,10 @@ test(`Exposes a CLS namespace`, t => {
 
   t.truthy(logger.cls);
 });
+
+test(`2 different loggers don't share the same namespace`, t => {
+  const logger = createLogger();
+  const anotherLogger = createLogger();
+
+  t.notDeepEqual(logger.cls, anotherLogger.cls);
+});
