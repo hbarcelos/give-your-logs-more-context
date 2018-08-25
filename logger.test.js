@@ -52,3 +52,9 @@ test(`Properly logs message with context object`, async t => {
   t.deepEqual(entry.dummy, context.dummy);
   t.deepEqual(entry.msg, message);
 });
+
+test(`Exposes a CLS namespace`, t => {
+  const logger = createLogger();
+
+  t.truthy(logger.cls);
+});
