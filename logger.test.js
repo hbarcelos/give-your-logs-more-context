@@ -36,3 +36,19 @@ loggerMethodUseCases.forEach(({ input, expected }) => {
     expected
   );
 });
+
+test(`Properly logs message with context object`, async t => {
+  const stream = parseJSONStream();
+  const gen = streamToGenerator(stream);
+  const logger = createLogger({}, stream);
+
+  const context = { dummy: 'value' };
+  const message = 'foo';
+
+  logger.info(context, message);
+
+  const entry = await gen.next().value;
+
+  t.deepEqual(entry.dummy, context.dummy);
+  t.deepEqual(entry.msg, message);
+});
