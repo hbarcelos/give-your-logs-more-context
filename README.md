@@ -3,7 +3,7 @@
 This repository is the implementation of the ideas from "Give your logs more context" article series:
 
 - [Part 1](https://itnext.io/give-your-logs-more-context-7b43ea6b4ae6) 
-- [Part 2](https://medium.com/@hbarcelos/give-your-logs-more-context-part-2-c2c952724e04).
+- [Part 2](https://medium.com/@hbarcelos/give-your-logs-more-context-part-2-c2c952724e04)
 
 ## Requirements
 
