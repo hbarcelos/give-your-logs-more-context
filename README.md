@@ -1,16 +1,17 @@
 # Give your logs more context
 
-This repository is the implementation of the ideas from [this article](https://itnext.io/give-your-logs-more-context-7b43ea6b4ae6) and was implemented following the steps of this [another one](https://medium.com/@hbarcelos/give-your-logs-more-context-part-2-c2c952724e04).
+This repository is the implementation of the ideas from "Give your logs more context" article series:
+
+- [Part 1] (https://itnext.io/give-your-logs-more-context-7b43ea6b4ae6) 
+- [Part 2] (https://medium.com/@hbarcelos/give-your-logs-more-context-part-2-c2c952724e04).
 
 ## Requirements
 
-```
-npm install -g yarn
-```
+- [Yarn](https://yarnpkg.com/en/docs/install)
 
 ## Setup
 
-To follow the article, after cloning this repository, I recommend you to checkout the `initial` tag:
+If you are following follow the article, after cloning this repository, I checkout the `initial` tag:
 
 ```bash
 git clone https://github.com/hbarcelos/give-your-logs-more-context
